@@ -17,7 +17,8 @@
             min: "Minimum value for this field is ${1}",
             max: "Maximum value for this field is ${1}",
             pattern: "Please match the requested format",
-            equals: "The two fields do not match"
+            equals: "The two fields do not match",
+            default: "Please enter a correct value"
         }
     };
 
@@ -148,7 +149,11 @@
                 });
 
                 self.live && input.addEventListener(!~['radio', 'checkbox'].indexOf(input.getAttribute('type')) ? 'input' : 'change', function (e) {
-                    self.validate(e.target);
+                    e.target.active = true;
+                }.bind(self));
+
+                self.live && input.addEventListener(!~['radio', 'checkbox'].indexOf(input.getAttribute('type')) ? 'blur' : 'change', function (e) {
+                    e.target.active && self.validate(e.target);
                 }.bind(self));
 
                 return input.pristine = { input: input, validators: fns, params: params, messages: messages, self: self };
@@ -250,6 +255,8 @@
                         errors.push(tmpl.apply(field.messages[currentLocale][validator.name], params));
                     } else if (lang[currentLocale] && lang[currentLocale][validator.name]) {
                         errors.push(tmpl.apply(lang[currentLocale][validator.name], params));
+                    } else {
+                        errors.push(tmpl.apply(lang[currentLocale].default, params));
                     }
 
                     if (validator.halt === true) {
